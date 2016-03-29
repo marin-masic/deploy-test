@@ -14,7 +14,7 @@ class ImportersDeployer(object):
     _db_password = None
     _git_remote = None
     _db_conn = None
-    _heroku-app-name = None
+    _heroku_app_name = None
 
     def check_args(self, argv):
         try:
@@ -35,9 +35,9 @@ class ImportersDeployer(object):
             elif opt in ("-r", "--git-remote"):
                 self._git_remote = arg
             elif opt in ("a", "--heroku-app-name"):
-                self._heroku-app-name = arg
+                self._heroku_app_name = arg
 
-        if self._db_name and self._db_user and self._db_host and self._db_password and self._git_remote and self._heroku-app-name:
+        if self._db_name and self._db_user and self._db_host and self._db_password and self._git_remote and self._heroku_app_name:
             return True
 
         return False
@@ -60,7 +60,7 @@ class ImportersDeployer(object):
 
     def set_service_run_state(self, resource_name, stop_service):
         try:
-            formation_url = "apps/{}/formation/{}".format(self._heroku-app-name, resource_name)
+            formation_url = "apps/{}/formation/{}".format(self._heroku_app_name, resource_name)
             url = urlparse.urljoin("https://api.heroku.com", formation_url)
             quantity = 0 if stop_service else 1
             data = {"quantity": quantity}
