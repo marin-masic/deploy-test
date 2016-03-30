@@ -1,11 +1,12 @@
-import sys, getopt
+import sys
 import time
 import psycopg2
 import subprocess
 import requests
 import json
-import argparse
+import urlparse
 import logging
+import argparse
 
 class ImportersDeployer(object):
     _db_name = None
@@ -16,13 +17,12 @@ class ImportersDeployer(object):
     _db_conn = None
     _heroku_app_name = None
 
-    def check_args(self, argv):
-        parser = argparse.ArgumentParser()
+    def check_args(self, parser):
         parser.add_argument("--db-name", help="Importers database name on Postgres database server.")
         parser.add_argument("--db-user", help="Database user which have read rights for importers database.")
         parser.add_argument("--db-host", help="Database server URL.")
         parser.add_argument("--db-password", help="Password for provided database user.")
-        parser.add_argument("--git-remote", help="Remote Git repository where you wanna push code (deploy).")
+        parser.add_argument("--git-remote", help="Remote Git repository where you wanna push (deploy) code.")
         parser.add_argument("--heroku-app-name", 
             help="Heroku app for which you're pushing deploy (this app's clock and web dyno will be stoped during deploy).")
 
@@ -89,9 +89,11 @@ class ImportersDeployer(object):
 if __name__ == "__main__":
     deploya = ImportersDeployer()
     
-    if not deploya.check_args(sys.argv[1:]):
+    parser = argparse.ArgumentParser()
+    
+    if not deploya.check_args(parser):
         print "Invalid command"
-        print "Usage: python deploy.py --db-name='<db-name>' --db-user='<db-user>' --db-host='<db-host>' --db-password='<db-password>' --git-remote='<git-remote>' --heroku-app-name='<heroku-app-name>'"
+        parser.print_help()
         sys.exit(2)
 
     if not deploya.init_db_conn():
