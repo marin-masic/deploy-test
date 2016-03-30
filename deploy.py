@@ -4,7 +4,7 @@ import psycopg2
 import subprocess
 import requests
 import json
-import urlparse
+import argparse
 import logging
 
 class ImportersDeployer(object):
@@ -17,26 +17,23 @@ class ImportersDeployer(object):
     _heroku_app_name = None
 
     def check_args(self, argv):
-        try:
-            opts, args = getopt.getopt(argv, "hn:u:h:p:r:a", ["db-name=", "db-user=", "db-host=", "db-password=", "git-remote=", "heroku-app-name="])
-        except getopt.GetoptError:
-            logging.exception("ERROR")
-            return False
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--db-name", help="Importers database name on Postgres database server.")
+        parser.add_argument("--db-user", help="Database user which have read rights for importers database.")
+        parser.add_argument("--db-host", help="Database server URL.")
+        parser.add_argument("--db-password", help="Password for provided database user.")
+        parser.add_argument("--git-remote", help="Remote Git repository where you wanna push code (deploy).")
+        parser.add_argument("--heroku-app-name", 
+            help="Heroku app for which you're pushing deploy (this app's clock and web dyno will be stoped during deploy).")
 
-        for opt, arg in opts:
-            if opt in ("-n", "--db-name"):
-                self._db_name = arg
-            elif opt in ("-u", "--db-user"):
-                self._db_user = arg
-            elif opt in ("-h", "--db-host"):
-                self._db_host = arg
-            elif opt in ("-p", "--db-password"):
-                self._db_password = arg
-            elif opt in ("-r", "--git-remote"):
-                self._git_remote = arg
-            elif opt in ("a", "--heroku-app-name"):
-                self._heroku_app_name = arg
-
+        args = parser.parse_args()
+        self._db_name = args.db_name
+        self._db_user = args.db_user
+        self._db_host = args.db_host
+        self._db_password = args.db_password
+        self._git_remote = args.git_remote
+        self._heroku_app_name = args.heroku_app_name
+        
         if self._db_name and self._db_user and self._db_host and self._db_password and self._git_remote and self._heroku_app_name:
             return True
 
